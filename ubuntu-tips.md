@@ -1,0 +1,3 @@
+To gain access to a VirtualBox shared folder, add it as read/write capable folder fron the host system in the box's admin panel then...
+
+sudo adduser xxxxxxx vboxsf
