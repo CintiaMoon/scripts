@@ -36,3 +36,7 @@ export PORT=8983
 export ROUTE_NAME=hybris-debug
 export PORT=8000
 ./map-port.sh
+
+# Now start the app...
+cf start $APP_NAME
+cf logs $APP_NAME
