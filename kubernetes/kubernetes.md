@@ -87,34 +87,162 @@ On GitHub: https://github.com/udacity/ud615
   ```
 
 ### Creating a K8s Service using Labels
-```
-  121  cat services/monolith.yaml
-  122  kubectl create -f services/monolith.yaml
-  123  gcloud compute firewall-rules create allow-monolith-nodeport --allow=tcp:31000
-  124  kubectl get pods -l "app=monolith"
-  125  kubectl get pods -l "secure=enabled"
-  127  kubectl describe pods secure-monolith | grep Labels
-  128  kubectl label pods secure-monolith "secure=enabled"
-  129  kubectl get pods -l "secure=enabled"
-  130  kubectl describe pods secure-monolith | grep Labels
-  131  kubectl describe services monolith
-  132  kubectl describe pods secure-monolith | grep Labels
-  133  kubectl get pods -l "secure=enabled"
-  134  kubectl label pods secure-monolith "secure=enabled"
-  135  kubectl describe pods secure-monolith
-  136  kubectl describe services monolith | grep Endpoints
-  ```
+
+````bash
+121  cat services/monolith.yaml
+122  kubectl create -f services/monolith.yaml
+123  gcloud compute firewall-rules create allow-monolith-nodeport --allow=tcp:31000
+124  kubectl get pods -l "app=monolith"
+125  kubectl get pods -l "secure=enabled"
+127  kubectl describe pods secure-monolith | grep Labels
+128  kubectl label pods secure-monolith "secure=enabled"
+129  kubectl get pods -l "secure=enabled"
+130  kubectl describe pods secure-monolith | grep Labels
+131  kubectl describe services monolith
+132  kubectl describe pods secure-monolith | grep Labels
+133  kubectl get pods -l "secure=enabled"
+134  kubectl label pods secure-monolith "secure=enabled"
+135  kubectl describe pods secure-monolith
+136  kubectl describe services monolith | grep Endpoints
+````
 
 ### Contacting the service externally from the internet...
-```
-  137  gcloud compute instances list 
-  138  curl -k https://35.189.93.198:31000
-  ```
+
+````bash
+gcloud compute instances list 
+curl -k https://35.189.93.198:31000
+````
 
 ## General Troubleshooting
-```
-   98  kubectl exec monolith --stdin --tty -c monolith /bin/sh
-  101  kubectl port-forward secure-monolith 10443:443
-   95  kubectl logs monolith
-   88  kubectl logs -f monolith
-   ```
+
+````bash
+kubectl exec monolith --stdin --tty -c monolith /bin/sh
+kubectl port-forward secure-monolith 10443:443
+kubectl logs monolith
+kubectl logs -f monolith
+````
+
+## Lesson 4 - Creating Deployments
+
+Deploying the Auth application: `deployments/auth.yml`
+
+````yaml
+apiVersion: extensions/v1beta1
+kind: Deployment # The Kubernetes construct this file describes - a Deployment.
+metadata:
+  name: auth # The deployment name.
+spec:
+  replicas: 1 # Number of desired replica's.
+  template:
+    metadata:
+      labels:
+        app: auth
+        track: stable
+    spec:
+      containers:
+        - name: auth
+          image: "udacity/example-auth:1.0.0"
+          ports:
+            - name: http
+              containerPort: 80
+            - name: health
+              containerPort: 81 # The health port.
+          resources:
+            limits:
+              cpu: 0.2
+              memory: "10Mi"
+          livenessProbe: # Used to establish ongoing container health.
+            httpGet:
+              path: /healthz
+              port: 81
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe: # Used to establish the container readyness.
+            httpGet:
+              path: /readiness
+              port: 81
+              scheme: HTTP
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+````
+
+````bash
+$ kubectl create -f deployments/auth.yml
+$ kubectl describe deployments auth
+````
+
+Exposing the Auth service: `services/auth.yaml`.
+
+````yaml
+kind: Service # The Kubernetes construct this file describes - a Service.
+apiVersion: v1
+metadata:
+  name: "auth" # The service name.
+spec:
+  selector:
+    app: "auth"
+  ports:
+    - protocol: "TCP"
+      port: 80 # The port to expose the service on.
+      targetPort: 80 # The underlying pod port to map requests to.
+````
+
+````bash
+$ kubectl create -f services/auth.yaml
+$ kubectl describe service auth
+````
+
+Deploying the Hello service: `deployments/hello.yaml` & `services/hello.yaml`.
+
+````bash
+$ kubectl create -f deployments/hello.yaml
+$ kubectl create -f services/hello.yaml
+````
+
+Deploying the Frontend components: `nginx/frontend.conf`, `deployments/frontend.yaml` and `services/frontend.yaml`.
+
+nginx/frontend.conf
+
+````json
+upstream hello {
+    server hello.default.svc.cluster.local;
+}
+
+upstream auth {
+    server auth.default.svc.cluster.local;
+}
+
+server {
+    listen 443;
+    ssl    on;
+
+    ssl_certificate     /etc/tls/cert.pem;
+    ssl_certificate_key /etc/tls/key.pem;
+
+    location / {
+        proxy_pass http://hello;
+    }
+
+    location /login {
+        proxy_pass http://auth;
+    }
+}
+````
+
+````bash
+$ kubectl create configmap nginx-frontend-conf --from-file=nginx/frontend.conf
+$ kubectl create -f deployments/frontend.yaml
+$ kubectl create -f services/frontend.yaml
+````
+
+Interact with the Frontend application by getting its external IP...
+
+````bash
+$ kubectl get services frontend
+$ curl -k https://<external-ip>
+````
+
+## Lesson 4 - Scaling
+
