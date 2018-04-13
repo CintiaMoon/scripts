@@ -33,6 +33,9 @@ echo ">> About to start a watch. Cancel it when the riff-system components look 
 sleep 10
 
 watch -n 1 kubectl get pods,deployments --namespace riff-system
+export NODE_PORT=$(kubectl get --namespace riff-system -o jsonpath="{.spec.ports[0].nodePort}" services projectriff-riff-http-gateway)
+export NODE_IP=$(kubectl get nodes --namespace riff-system -o jsonpath="{.items[0].status.addresses[0].address}")
+echo http://$NODE_IP:$NODE_PORT
 
 echo ">> Adding all the Riff invokers..."
 riff invokers apply -f https://github.com/projectriff/command-function-invoker/raw/v0.0.6/command-invoker.yaml
