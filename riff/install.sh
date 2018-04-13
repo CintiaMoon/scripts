@@ -3,9 +3,9 @@
 # I've generally started after running 'minikube delete' so I know I have a fresh system. 
 # I'm on Minikube v0.26.0, Kubectl v1.10 and Riff 0.0.6.
 
-curl -Lo riff-darwin-amd64.tgz https://github.com/projectriff/riff/releases/download/v0.0.6/riff-darwin-amd64.tgz
-tar xvzf riff-darwin-amd64.tgz
-sudo mv riff /usr/local/bin/
+# curl -Lo riff-darwin-amd64.tgz https://github.com/projectriff/riff/releases/download/v0.0.6/riff-darwin-amd64.tgz
+# tar xvzf riff-darwin-amd64.tgz
+# sudo mv riff /usr/local/bin/
 
 minikube start --memory=4096
 
@@ -27,7 +27,8 @@ helm repo add projectriff https://riff-charts.storage.googleapis.com
 helm repo update
 
 echo ">> Initialising Riff (and Kafka) via Helm..."
-helm install projectriff/riff --name projectriff --namespace riff-system --set kafka.create=true --set rbac.create=false --set httpGateway.service.type=NodePort
+# helm install projectriff/riff --name projectriff --namespace riff-system --set kafka.create=true --set rbac.create=false --set httpGateway.service.type=NodePort
+helm install projectriff/riff --name projectriff --namespace riff-system --set kafka.create=true --set rbac.create=true --set httpGateway.service.type=NodePort
 
 echo ">> About to start a watch. Cancel it when the riff-system components look to be in a running state..."
 sleep 10
@@ -35,7 +36,8 @@ sleep 10
 watch -n 1 kubectl get pods,deployments --namespace riff-system
 export NODE_PORT=$(kubectl get --namespace riff-system -o jsonpath="{.spec.ports[0].nodePort}" services projectriff-riff-http-gateway)
 export NODE_IP=$(kubectl get nodes --namespace riff-system -o jsonpath="{.items[0].status.addresses[0].address}")
-echo http://$NODE_IP:$NODE_PORT
+# echo http://$NODE_IP:$NODE_PORT
+export RIFF_HTTP_GATEWAY_URL=$(minikube service -n riff-system --url projectriff-riff-http-gateway)
 
 echo ">> Adding all the Riff invokers..."
 riff invokers apply -f https://github.com/projectriff/command-function-invoker/raw/v0.0.6/command-invoker.yaml
@@ -57,8 +59,8 @@ sleep 10
 watch -n 1 kubectl get functions,topics,pods,daemonSets,deployments,services --all-namespaces
 
 echo ">> Sending a message to the 'square' Riff function via the 'numbers' topic and waiting for a reply..."
-sleep 5
+sleep 10
 
 riff publish --input numbers --data 10 --reply
-
+curl -w '\n' -H 'Content-Type: text/plain' $RIFF_HTTP_GATEWAY_URL/requests/numbers -d 12
 echo ">> You can delete the function and topic with 'riff delete --name square --all'"
