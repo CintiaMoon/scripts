@@ -111,13 +111,9 @@ minikube dashboard
 
 ## Access the Kubernetes UI (non Minikube)...
 
-The command `kubectl proxy` creates a proxy server or application-level gateway between localhost and the Kubernetes API Server. It also allows
-serving static content over specified HTTP path. All incoming data enters through one port and gets forwarded to the
-remote kubernetes API Server port, except for the path matching the static content path.
+The command `kubectl proxy` creates a proxy server or application-level gateway between localhost and the Kubernetes API Server. It also allows serving static content over specified HTTP path. All incoming data enters through one port and gets forwarded to the remote kubernetes API Server port, except for the path matching the static content path.
 
 ```bash
 kubectl proxy
 Starting to serve on 127.0.0.1:8001
 ```
-
-
