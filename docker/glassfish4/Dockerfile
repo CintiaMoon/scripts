@@ -1,8 +1,3 @@
-# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
-# 
-# Copyright (c) 2017 Oracle and/or its affiliates. All rights reserved.
-# 
-# GlassFish on Docker with Oracle Linux and OpenJDK
 FROM openjdk:7-jdk-alpine
 
 # Maintainer

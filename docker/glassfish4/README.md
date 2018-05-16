@@ -9,6 +9,8 @@ In this sample, running the following script will...
 
 Once it's running, navigate to [http://localhost:8080/MavenEnterpriseApp-web/ListNews](http://localhost:8080/MavenEnterpriseApp-web/ListNews) to try the application for yourself. 
 
+The source code comes from [https://netbeans.org/kb/docs/javaee/maven-entapp.html](https://netbeans.org/kb/docs/javaee/maven-entapp.html).
+
 ##### Run the script...
 
 ```bash
