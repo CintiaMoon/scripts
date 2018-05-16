@@ -20,8 +20,8 @@ ENV GLASSFISH_PKG=glassfish-4.1.2.zip \
 
 
 COPY docker-entrypoint.sh /entrypoint.sh
-# COPY MavenEnterpriseApp-ejb/src/main/resources/META-INF/glassfish-resources.xml /glassfish-resources.xml
-# COPY MavenEnterpriseApp-ear/target/MavenEnterpriseApp-ear.ear /MavenEnterpriseApp-ear.ear
+COPY glassfish-resources.xml /glassfish-resources.xml
+COPY MavenEnterpriseApp-ear.ear /MavenEnterpriseApp-ear.ear
 # COPY glassfish-4.1.2.zip /glassfish-4.1.2.zip
 # COPY db-derby-10.12.1.1-bin.zip /db-derby-10.12.1.1-bin.zip
 
@@ -32,8 +32,8 @@ RUN apk add --no-cache unzip curl && \
     curl -O $GLASSFISH_URL && \
     curl -O $DERBY_URL && \
     echo "$MD5 *$GLASSFISH_PKG" | md5sum -c - && \
-    unzip -o $GLASSFISH_PKG && \
-    unzip -o $DERBY_PKG && \
+    unzip -oq $GLASSFISH_PKG && \
+    unzip -oq $DERBY_PKG && \
     rm -f $GLASSFISH_PKG && \
     rm -f $DERBY_PKG && \
     rm -R $GLASSFISH_HOME/javadb && \

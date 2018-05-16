@@ -33,3 +33,4 @@ EXPOSE 4848 8080 8181
 
 # Start asadmin console and the domain
 CMD ["asadmin", "start-domain", "--echo=true", "-v"]
+

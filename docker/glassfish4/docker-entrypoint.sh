@@ -13,8 +13,8 @@ asadmin start-domain
 echo "AS_ADMIN_PASSWORD=${ADMIN_PASSWORD}" > /tmp/glassfishpwd
 asadmin --user=admin --passwordfile=/tmp/glassfishpwd enable-secure-admin
 asadmin --user=admin --passwordfile=/tmp/glassfishpwd --echo=true start-database --dbport 1527
-# asadmin --user=admin --passwordfile=/tmp/glassfishpwd --echo=true add-resources /glassfish-resources.xml
-# asadmin --user=admin --passwordfile=/tmp/glassfishpwd --echo=true deploy /MavenEnterpriseApp-ear.ear
+asadmin --user=admin --passwordfile=/tmp/glassfishpwd --echo=true add-resources /glassfish-resources.xml
+asadmin --user=admin --passwordfile=/tmp/glassfishpwd --echo=true deploy /MavenEnterpriseApp-ear.ear
 asadmin --user=admin stop-domain
 rm /tmp/glassfishpwd
 exec "$@"
