@@ -8,9 +8,7 @@ https://kubernetes.io/docs/tutorials/stateless-application/hello-minikube/
 
 ````bash
 $ brew install xhyve
-$ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-darwin-amd64 &&   \
-$ chmod +x minikube && \
-$ sudo mv minikube /usr/local/bin/
+$ brew cask install minikube
 $ minikube --version
 $ brew install docker-machine-driver-xhyve
 $ sudo chown root:wheel $(brew --prefix)/opt/docker-machine-driver-xhyve/bin/docker-machine-driver-xhyve
@@ -20,6 +18,12 @@ $ curl --proxy "" https://cloud.google.com/container-registry/
 ````
 
 That last command should tell you that you can browse the web without a proxy.
+
+#### Upgrading Minikube
+
+```bash
+brew cask reinstall minikube
+```
 
 # Working with Minikube
 
@@ -33,6 +37,7 @@ To start the local Minikube cluster (with Docker running and no need for a http 
 
 ````bash
 $ minikube start --vm-driver=xhyve
+$ eval $(minikube docker-env)
 ````
 
 Then set the kubectl context. You can see all your available contexts in the `~/.kube/config` file.
@@ -60,6 +65,7 @@ The `Dockerfile` in this folder packages up the simple Node.js application in `s
 Set the Minikube Docker deamon...
 
 ````bash
+$ minikube start
 $ eval $(minikube docker-env) # Use `eval $(minikube docker-env -u)` to reverse this.
 ````
 
