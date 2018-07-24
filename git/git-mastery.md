@@ -19,11 +19,11 @@ All commands in git can be viewed in terms of:-
   * Does it add a commit?
   * Does it move branches?
 
-### The Working Area
+### The **Working Area**
 
 The project directory on your filesystem where you work on your project. All your edits are happening in the working area. Once data is committed its stored in the `repository`.
 
-### The Repository
+### The **Repository**
 
 Git stores you changes in the repository in the `.git` folder. The most important folder in here is arguably the `object` folder. This folder stores three types of information...
 
@@ -31,15 +31,15 @@ Git stores you changes in the repository in the `.git` folder. The most importan
 * trees
 * blobs
 
-All these objects are immutable. Can be created and deleted but not changed.
+All these objects are immutable. They can be created and deleted but not changed.
 
 Each `commit` points at a graph of `trees` and `blobs`. Each commit is a slice of your project history and each commit can point to one or more parent commits.
 
 Branches are references to a specific commit. Because commits point to other commits, a branch is essentially a pointer to a history of commits. There can be only one HEAD pointer, usually pointing to the current branch, and the branch is pointing to a commit. We can switch the HEAD pointer and the current branch (commit) by "checking out".
 
-### The Index
+### The **Index**
 
-The index stands between the working area and the repository - staging changes, ready for commit.
+The index stands between the working area and the repository - staging changes, ready for commit. You can often see the state of the index vs the repository by looking at the git status...
 
 `git status`
 
@@ -49,7 +49,7 @@ Your branch is up to date with 'origin/master'
 nothing to commit, working tree clean
 ```
 
-`nothing to commit, working tree clean` means that all our files in the index and the working area are up to date and are in the current commit in the repository.
+`nothing to commit, working tree clean` means that all our files in the index and the working area are up to date with the current commit in the repository.
 
 The index is a binary file stored in `.git/index`. Think of it as just another area that holds everything. 
 
@@ -58,13 +58,13 @@ The index is a binary file stored in `.git/index`. Think of it as just another a
 `git diff --cached` compares the contents of the *index* with the contents of the *repository*.
 
 
-## Basic Workflow
+## Basic Git Workflow
 
-`git add <file>` - Add copies an 'UNTRACKED' file from the working area to the index overriding the previous version of the file. This change is now staged as part of the next commit. The file will be listed as having "NEW` status.
+`git add <file>` - Add copies an 'UNTRACKED' file from the working area to the index overriding the previous version of the file. This change is now staged as part of the next commit. The file will be listed as having "new" status when you next call `git status`.
 
-`git commit -m "message"` - Commit copies the updated file from the index to the repository. It creates a new commit (with a commit ID). It also moves the `branch` pointer to this new commit, which also moves the `HEAD` pointer to this new commit.
+`git commit -m "message"` - Commit copies the updated file from the index to the repository. It creates a new commit (with a new commit ID). It also moves the current `branch` pointer to this new commit, which also moves the `HEAD` pointer to this new commit (as it is usually pointing to the current commit).
 
-`git checkout` Changes the "current commit" so that we're looking at different data in the repository. Moves the HEAD reference in the repository to the checked out branch. Copied data from new "current commit" in the repository and moves it to the `index` and the `working area`. this is how our data switches when we switch branch.
+`git checkout` Changes the "current commit" so that we're looking at different data from the repository. Moves the HEAD reference in the repository to the newly checked out branch. Copies data from new "current commit" in the repository and moves it to the `index` and the `working area`. This is how our data switches context when we switch branch.
 
 To undo a `git add` (so the file is in the working area but *NOT* in the index anymore). You could use `git rm` but this would delete the file from both the working area and the index by default, so that you would need to use either the `-f or --cached` options as follows...
 
@@ -85,13 +85,13 @@ Git will generally notice that because the file content is the same, the file na
 
 `git mv name.txt name.md` would do these same steps automatically, renaming the file and adding it to the index ready for the next commit. Move doesn't touch the repository either.
 
-`git diff`
+`git diff` shows the changes between commits, the current commit and working tree, etc. It has lots of options.
 
 ## Using Git Reset
 
-> Reset can be confusing. To understand it, you need to understand the three main areas (`reporitory`, `index` and `working dir`) *and* git's branches. Reset also does different things in different *contexts*.
+> Reset can be confusing. To understand it, you need to understand the three main data areas (`reporitory`, `index` and `working dir`) *and* git's branches. Reset also does different things in different *contexts*.
 
-Git commands that "move branches"... Most move branches because they create a new `commit` and the branch moves to follow that commit. For example...
+There ae several Git commands that "move branches". Most move branches because they create a new `commit` and the branch moves to follow that commit. For example...
 
 * `git commit`
 * `git merge`
@@ -100,11 +100,15 @@ Git commands that "move branches"... Most move branches because they create a ne
 * `git revert`
 * etc.
 
-All move branches ... but none of them move branches explicitly. That's what `git reset` does. Whenb calling reset, two things happen...
+All these commands move branches implicitly... but none of them move branches explicitly. That's what `git reset` does. When calling reset, two things happen...
 
-1. First step it does is to move a branch (generally the "current branch" - the branch `HEAD` is pointing to). You pick a commit to reset to, and reset moves the branch to the given commit (in the `repository`).
+1. The first step is to move a branch (generally the "current branch", the branch `HEAD` is pointing to). You pick the commit you want to reset to, and reset moves the branch to the given commit (in the `repository` only in this first step).
 
-2. The second step is to move data between the three areas. Options control what happens. `--hard` copies files to the working area and the index, `--mixed` (default) copies files just to index but leaves working area alone, `--soft` means don't affect any of the index or working area.
+2. The second step is to then move the data between the three areas. The command options control what happens during this step. The `--hard` option copies files to the working area and to the index. The `--mixed` (default) option copies files just to the index but leaves working area alone. The `--soft` doesn't affect either the index or the working area (only the repository's branch is moved).
+
+> Note: **`HEAD`** is a reference to the last commit in the currently checked-out branch. `HEAD` is a pointer to a `branch` and a branch is a pointer to a `commit`.  
+
+> Note: **`Detached HEAD`** is the situation you end up in whenever you check out a commit (or tag) instead of a branch. So instead of having a HEAD that points to a regular named branch reference (like `master`), we  have only `HEAD` and this HEAD is not pointing to a branch like normal.
 
 #### Reset Options:
 
@@ -116,21 +120,21 @@ All move branches ... but none of them move branches explicitly. That's what `gi
 
 #### Uses of Reset:
 
-Many use cases. Here are some examples...
+There are many use cases for `git reset`. Here are some examples...
 
-##### Go back a few commits as if they never happened.
+##### Go back a few commits, as if they never happened.
 
-`git reset --hard <commit_id>` would move the current commit to the given commit ID. it would replace the files in the index and in the working directory. it would orphan the unwanted commits and they would get garbage collected by git later. 
+`git reset --hard <commit_id>` would move the current commit back to the given commit. As it is a `--hard` reset, it would replace the files in the index and in the working directory with those from the repository. It would also orphan the unwanted commits and they would get garbage collected by later by git. 
 
-##### Keep some staged changes
+##### Keep some selected staged changes
 
 I have changes staged for commit (in the index and in the working area) but I want to change my mind and clean out the staged file. I could use `git rm --cached` but it's not the only way, we can also reset the HEAD to another place.
 
-`git reset --mixed HEAD` moves data from current commit to the index but *not* to the working area. Gets us back to what was in HEAD.
+`git reset --mixed HEAD` would move data from current repository HEAD commit back to the index but would *not* affect the working area (because it is a `--mixed` reset). This gets us back to what was stored in the repository at HEAD as far as the index is concerned but would not change our working area.
 
-I want to get rid of all my staged changes...
+If I want to get rid of all my staged changes, including those in the working area I need to do a `--hard` reset...
 
-`git reset --hard HEAD` everything in index *and* the working area gets overwritten with the current branch's HEAD from the repository.
+`git reset --hard HEAD` everything in the index *and* in the working area gets overwritten with the files in the current branch's HEAD (from the repository).
 
 ## More Tools
 
@@ -138,11 +142,11 @@ Here are some more useful git tools...
 
 ### Git Stash
 
-The stash is there for times when you get interrupted and have to switch your task. It's a clipboard for you project. you can have as many clips as you like.
+The stash is there for times when you get interrupted and have to switch between tasks. It's essentially a clipboard for you project. You can have as many stashes as you like.
 
-`git stash --save --include-untracked` moves our changes in the working directory and the index to the "stash" area, and performs a checkout of the current commit into the index and the working area (i.e. back to clean status).
+`git stash --save --include-untracked` moves the changes in the working directory and in the index to the "stash" area before performing a `checkout` of the current commit into the index and the working area (i.e. back to clean status representing the last commit on this branch).
 
-> untracked are ignored by default by `git stash`!
+> Note: **Untracked are ignored by default by `git stash`!** To include these untracked files you must use the `--include-untracked` option.
 
 `git stash list` will list your stashes...
 
@@ -158,14 +162,14 @@ stash@{0}: WIP on master: da800f8 before rebase recipe
  1 file changed, 389 insertions(+), 8 deletions(-)
  ```
 
-`git stash apply` will apply the most recent stash back to your working area and to the index.
+`git stash apply` will apply the most recent stash back into to your working area and to the index.
 
 `git stash clear` will clean out the stash clipboard.
 
 
 ### Handling Merge Conflicts
 
-For example my `master` branch has a conflicting change with my `feature` branch. Starting from `master`...
+For example my `master` branch has a conflicting change with my `feature` branch. Starting from the `master` branch...
 
 `git merge feature` starts the merge. Git then tells me there is a conflict, there is an `unmerged path: recipes/guacamole.txt` (one contains tomato, the other one contains pepper). Both have the conflicting ingredient at the same line, so git cannot simply automate the merger of the two files.
 
@@ -298,13 +302,13 @@ e5918e5 titdied up the git stuff
 
 > Notice how the range specifies the oldest commit first, but the history starts with the newest commit.
 
-`git log branch-a..master --oneline` will compare the histories of the two branches given, and show the commits you would get if you merged these two branches.
+`git log branch-a....master --oneline` will compare the histories of the two branches given, and show the commits you would get if you merged these two branches.
 
 ## History: Fixing Mistakes
 
 Editing the project's history.
 
-> The Golden Rule: Don't edit the history of **shared commits**. This includes using commands that change the history like `rebase`.
+> **The Golden Rule:** _Don't edit the history of **shared commits_. This includes using commands that change the history like `rebase`.
 
 ### Ammending to the latest commit.
 
